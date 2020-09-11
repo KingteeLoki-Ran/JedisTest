@@ -10,17 +10,30 @@ import java.util.Random;
 public class MyJedis {
 
     public void Test(){
+        String host = "zjuipin420.redis.rds.aliyuncs.com";
+        String password = "IPINzju420";
+        Random random = new Random();
         List<JedisShardInfo> shards = Arrays.asList(
-                new JedisShardInfo("localhost", 6379),
-                new JedisShardInfo("localhost", 6380));
+                new JedisShardInfo(host, 6379, 3000, password));
 
         ShardedJedisPool pool = new ShardedJedisPool(new JedisPoolConfig(), shards);
 
         ShardedJedis one = pool.getResource();
 
+        ArrayList<String> keys = new ArrayList<String>();
+
+        for (int i=0; i<100000; i++) {
+            int x = random.nextInt(600);
+            int y = random.nextInt(70);
+            int direction = random.nextInt(380);
+            direction = direction - 180;
+            String key = x +";" + y + ";" + direction;
+            keys.add(key);
+        }
+
         long start = System.currentTimeMillis();
         for (int i=0; i<100000; i++) {
-            String result = one.set("spn" + i, "n" + i);
+            one.hget("J9-1-WM",keys.get(i));
         }
         long end = System.currentTimeMillis();
         pool.close();
